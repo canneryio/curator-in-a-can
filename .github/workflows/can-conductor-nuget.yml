@@ -1,0 +1,172 @@
+name: NuGet CI/CD
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/can-conductor-nuget.yml
+      - src/**
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/can-conductor-nuget.yml
+      - src/**
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to run"
+        required: true
+        default: "development"
+      runcd:
+        description: "Run CD pipeline"
+        required: true
+        default: "false"
+
+permissions:
+  id-token: write
+  contents: read
+  security-events: write
+
+env:
+  CONFIGURATION: "Release"
+  SCRIPTS_PATH: "./.github/scripts"
+  SRC_PATH: "./src"
+  PROJECT_PATH: "Cannery.Conductor.Client"
+  PROJECT_FILE: "Cannery.Conductor.Client.csproj"
+  SRC_SLN: "Cannery.Conductor.Client.sln"
+  TEST_PATH: "Cannery.Conductor.Client.Tests"
+  TEST_PROJECT: "Cannery.Conductor.Client.Tests.csproj"
+jobs:
+  ci:
+    name: "NuGet CI"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+    environment: development
+    strategy:
+      matrix:
+        DOTNET_VERSION: ["10.x"]
+    env:
+      RUNTIME_ENV: "Development"
+      CONFIGURATION: "Release"
+      VERSION_MAJOR: '1'
+      VERSION_MINOR: '0'
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: dotnet version ${{ matrix.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.DOTNET_VERSION }}
+
+      - name: Get Semantic Version
+        id: get_version
+        run: |
+          $json = & "${{ env.SCRIPTS_PATH }}/ci/Get-Version.ps1" -Major ${{ env.VERSION_MAJOR }} -Minor ${{ env.VERSION_MINOR }} -Patch $env:GITHUB_RUN_NUMBER
+          $versionObj = ($json | ConvertFrom-Json)
+          echo "SEMANTIC_VERSION=$($versionObj.SemanticVersion)" >> $env:GITHUB_OUTPUT
+          echo "FILE_VERSION=$($versionObj.FileVersion)" >> $env:GITHUB_OUTPUT
+          echo "ASSEMBLY_VERSION=$($versionObj.AssemblyVersion)" >> $env:GITHUB_OUTPUT
+          echo "INFORMATIONAL_VERSION=$($versionObj.InformationalVersion)" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Set-Version.ps1
+        run: |
+          $version = ${{ env.SCRIPTS_PATH }}/ci/Set-Version.ps1 -Path ${{ env.SRC_PATH }} -VersionToReplace 1.0.0 -Major ${{ env.VERSION_MAJOR }} -Minor ${{ env.VERSION_MINOR }} -Patch $env:GITHUB_RUN_NUMBER
+          echo $version
+          echo "VERSION=$version" >> $GITHUB_ENV
+        shell: pwsh
+
+      - name: pipeline environment configuration
+        run: |
+          echo "ASPNETCORE_ENVIRONMENT=${{ env.RUNTIME_ENV }}" >> $GITHUB_ENV
+        shell: pwsh
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: csharp
+
+      - name: Build
+        run: |
+          dotnet build ${{ env.SRC_PATH }}/${{ env.SRC_SLN }} --configuration ${{ env.CONFIGURATION }}
+        shell: pwsh
+
+      - name: Test
+        run: |
+          cd ${{ env.SRC_PATH }}/${{ env.TEST_PATH }}
+          dotnet run --configuration ${{ env.CONFIGURATION }} --no-build
+        shell: pwsh
+
+      - name: Copy test results
+        if: ${{ always() }}
+        run: |
+          mkdir -p TestResults-${{ matrix.DOTNET_VERSION }}
+          if (Test-Path "${{ env.SRC_PATH }}/${{ env.TEST_PATH }}/bin/Release/net10.0/TestResults") {
+            Copy-Item -Path "${{ env.SRC_PATH }}/${{ env.TEST_PATH }}/bin/Release/net10.0/TestResults/*" -Destination "TestResults-${{ matrix.DOTNET_VERSION }}" -Recurse -Force
+          }
+        shell: pwsh
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-results-${{ matrix.DOTNET_VERSION }}
+          path: TestResults-${{ matrix.DOTNET_VERSION }}
+        if: ${{ always() }}
+
+      - name: Pack NuGet package
+        run: |
+          dotnet pack ${{ env.SRC_PATH }}/${{ env.PROJECT_PATH }}/${{ env.PROJECT_FILE }} --configuration ${{ env.CONFIGURATION }} --no-build --output nupkg_output --version ${{ steps.get_version.outputs.SEMANTIC_VERSION }}
+        shell: pwsh
+
+      - name: Upload NuGet package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: nupkg_output/*.nupkg
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v4
+        if: ${{ !github.event.repository.private }}
+
+      - name: Run Coverage Script
+        run: |
+          pwsh ${{ env.SCRIPTS_PATH }}/ci/Get-CodeCoverage.ps1 `
+            -TestProjectFilter '${{ env.TEST_PROJECT }}' `
+            -Configuration '${{ env.CONFIGURATION }}' `
+            -TestRootPath '${{ env.SRC_PATH }}'
+        shell: pwsh
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ matrix.DOTNET_VERSION }}
+          path: ${{ env.SRC_PATH }}/TestResults/Reports/**/index.html
+        if: ${{ always() }}
+
+  cd:
+    name: "NuGet CD"
+    runs-on: ubuntu-latest
+    needs: ci
+    if: |
+        (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+        (github.event_name == 'workflow_dispatch' && (github.event.inputs.runcd == 'true' || github.event.inputs.runcd == true))
+    environment: production
+    strategy:
+      matrix:
+        DOTNET_VERSION: ["10.x"]
+    env:
+      NUGET_OUTPUT: "nupkg_output"
+    steps:
+      - name: Download NuGet package artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-package
+          path: nupkg_output
+
+      - name: Publish to NuGet.org
+        run: |
+          dotnet nuget push nupkg_output/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
