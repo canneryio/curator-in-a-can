@@ -5,13 +5,13 @@ on:
     branches:
       - main
     paths:
-      - .github/workflows/can-conductor-nuget.yml
+      - .github/workflows/can-curator-nuget.yml
       - src/**
   push:
     branches:
       - main
     paths:
-      - .github/workflows/can-conductor-nuget.yml
+      - .github/workflows/can-curator-nuget.yml
       - src/**
   workflow_dispatch:
     inputs:
@@ -33,11 +33,11 @@ env:
   CONFIGURATION: "Release"
   SCRIPTS_PATH: "./.github/scripts"
   SRC_PATH: "./src"
-  PROJECT_PATH: "Cannery.Conductor.Client"
-  PROJECT_FILE: "Cannery.Conductor.Client.csproj"
-  SRC_SLN: "Cannery.Conductor.Client.sln"
-  TEST_PATH: "Cannery.Conductor.Client.Tests"
-  TEST_PROJECT: "Cannery.Conductor.Client.Tests.csproj"
+  PROJECT_PATH: "Cannery.Curator.Client"
+  PROJECT_FILE: "Cannery.Curator.Client.csproj"
+  SRC_SLN: "Cannery.Curator.Client.sln"
+  TEST_PATH: "Cannery.Curator.Client.Tests"
+  TEST_PROJECT: "Cannery.Curator.Client.Tests.csproj"
 jobs:
   ci:
     name: "NuGet CI"

@@ -126,7 +126,7 @@ public class TagResolver(ITagStore store, IMcpClient mcpClient, string curatorPa
         // 5) Deduplicate by canonical (prefer authoritative)
         var final = tags
             .GroupBy(t => t.Canonical)
-            .Select(g => g.OrderBy(t => t.IsProvisional).Last())
+            .Select(g => g.OrderBy(t => t.IsProvisional).First())
             .ToList();
 
         return new TagResolutionResultDto { Tags = final, Errors = errors };
