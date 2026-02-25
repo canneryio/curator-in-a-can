@@ -31,6 +31,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Goodtocode.McpClient" Version="1.1.8" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.3" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="10.0.3" />

@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Canery.Curator.Client\Cannery.Curator.Client.csproj" />
+    <ProjectReference Include="..\Cannery.Curator.Client\Cannery.Curator.Client.csproj" />
   </ItemGroup>
 
   <ItemGroup>
