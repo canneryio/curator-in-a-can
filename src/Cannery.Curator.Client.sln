@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 18
+VisualStudioVersion = 18.2.11408.102
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cannery.Curator.Client.Tests", "Cannery.Curator.Client.Tests\Cannery.Curator.Client.Tests.csproj", "{33E36BB9-EF50-45BE-2DC2-AEBED11C69E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cannery.Curator.Client", "Cannery.Curator.Client\Cannery.Curator.Client.csproj", "{CCE3D0AE-3529-437B-1E13-C80A3550D612}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{33E36BB9-EF50-45BE-2DC2-AEBED11C69E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33E36BB9-EF50-45BE-2DC2-AEBED11C69E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33E36BB9-EF50-45BE-2DC2-AEBED11C69E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33E36BB9-EF50-45BE-2DC2-AEBED11C69E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCE3D0AE-3529-437B-1E13-C80A3550D612}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCE3D0AE-3529-437B-1E13-C80A3550D612}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCE3D0AE-3529-437B-1E13-C80A3550D612}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCE3D0AE-3529-437B-1E13-C80A3550D612}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {394AC88B-6897-416E-B92F-1D370A044F06}
+	EndGlobalSection
+EndGlobal

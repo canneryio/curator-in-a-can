@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<RootNamespace>Cannery.Curator.Client</RootNamespace>
+		<AssemblyName>Cannery.Curator.Client</AssemblyName>
+		<Version>1.0.0</Version>
+		<FileVersion>1.0.0</FileVersion>
+		<PackageVersion>1.0.0</PackageVersion>
+		<InformationalVersion>1.0.0</InformationalVersion>
+		<TargetFramework>net10.0</TargetFramework>
+		<IsPackable>true</IsPackable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+
+		<PackageId>Cannery.Curator.Client</PackageId>
+		<Authors>Robert Good</Authors>
+		<Company>CanneryIO</Company>
+		<Description>.NET library for tag resolution and curation, integrating with CanneryIO Curator and MCP services. Provides local and authoritative tag management, resolution, and error handling.</Description>
+		<PackageTags>tag;curation;resolver;curator;metadata;taxonomy;CanneryIO;MCP;.NET</PackageTags>
+		<RepositoryUrl>https://github.com/canneryio/Curator-in-a-can</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/canneryio/Curator-in-a-can</PackageProjectUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<Copyright>Copyright © 2024-2026 CanneryIO, Inc.</Copyright>
+		<PackageIcon>cannery-icon.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="cannery-icon.png" Pack="true" PackagePath="" />
+		<None Include="..\..\README.md" Pack="true" PackagePath="" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Goodtocode.McpClient" Version="1.1.8" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.3" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="10.0.3" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.3" />
+	</ItemGroup>
+
+</Project>
